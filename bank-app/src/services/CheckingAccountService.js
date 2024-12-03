@@ -4,19 +4,23 @@ import Cookies from 'js-cookie';
 const API_URL = 'http://localhost:8080/bank';
 
 // Hesap oluşturma fonksiyonu
-const create = async () => {
+const create = async (branchName, currency) => {
     try {
         // Token'ı çerezden al
         const token = Cookies.get('authToken');
 
         if (!token) {
             throw new Error("Token bulunamadı. Lütfen giriş yapın.");
+            
         }
 
-        // Hesap oluşturma isteği gönder (body'ye data eklenmeyecek)
+        // Hesap oluşturma isteği gönder
         const response = await axios.post(
             `${API_URL}/accounts/checkingAccounts/add`,
-            {},  // Veri gönderilmiyor
+            {
+                branchName: branchName,  // Şube adı
+                currency: currency,      // Para birimi
+            }, 
             {
                 headers: {
                     Authorization: `Bearer ${token}`, // Token'ı başlık olarak gönder
@@ -30,6 +34,9 @@ const create = async () => {
         return { success: false, message: error.message || 'Hesap açılırken bir sorun oldu' };
     }
 };
+
+
+
 const getAllAccounts = async () => {
     try {
         // Retrieve the token from cookies
