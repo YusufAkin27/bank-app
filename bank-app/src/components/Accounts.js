@@ -87,7 +87,7 @@ const AccountDetail = ({ account }) => {
                         Toplam Hesap Bakiyesi:
                     </Text>
                     <Text fontSize="md" fontWeight="bold" color="blue.600">
-                        {`${formatAmount(account.balance)} TRY`}
+                        {`${formatAmount(account.balance) } `}
                     </Text>
                 </HStack>
                 <HStack justify="space-between">
@@ -95,7 +95,7 @@ const AccountDetail = ({ account }) => {
                         Kullanılabilir Bakiye:
                     </Text>
                     <Text fontSize="md" fontWeight="bold" color="green.600">
-                        {`${formatAmount(availableBalance)} TRY`}
+                        {`${formatAmount(availableBalance)}`}
                     </Text>
                 </HStack>
             </VStack>

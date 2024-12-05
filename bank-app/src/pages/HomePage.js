@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { VStack , Flex, Text } from "@chakra-ui/react";
+import { VStack, Flex, Text } from "@chakra-ui/react";
 import Navbar from "../components/Navbar"; // Navbar bileşeni
 import Account from "../components/Accounts";
 import { getAllAccounts } from "../services/CheckingAccountService"; // API servisi
@@ -13,7 +13,7 @@ const HomePage = () => {
   useEffect(() => {
     const token = Cookies.get("authToken");
     const userRole = Cookies.get("userRole");
-
+    console.log(token);
     // Kullanıcı token veya rol geçersizse girişe yönlendir
     if (!token || (userRole !== "ROLE_ADMIN" && userRole !== "ROLE_USER")) {
       navigate("/");

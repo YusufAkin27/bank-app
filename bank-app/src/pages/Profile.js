@@ -1,273 +1,207 @@
-import React from "react";
-import { Box, Flex, Text, Button, Menu, MenuButton, MenuList, MenuItem, Avatar, useBreakpointValue, Spacer } from "@chakra-ui/react";
-import { AiOutlineIdcard, AiOutlineHome, AiOutlinePhone, AiOutlineMail, AiOutlineLogout, AiOutlineDollar, AiOutlineRead, AiOutlineFundProjectionScreen, AiOutlineTool } from "react-icons/ai";
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Flex,
+  Text,
+  Button,
+  Avatar,
+  Grid,
+  Stack,
+  Icon,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import {
+  AiOutlineHome,
+  AiOutlinePhone,
+  AiOutlineMail,
+  AiOutlineDollarCircle,
+  AiOutlineBook,
+  AiOutlineTool,
+  AiOutlineUser,
+} from "react-icons/ai";
+import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import { getByProfile } from "../services/AuthService";
 
-const Profile = ({ name, surname, income, education, jobType, profession, addressList, phoneNumbers, emails }) => {
+const Profile = () => {
   const navigate = useNavigate();
+  const [profileData, setProfileData] = useState({
+    name: "",
+    surname: "",
+    income: 0,
+    education: "",
+    jobType: "",
+    profession: "",
+    addressList: [],
+    phoneNumbers: "",
+    emails: "",
+  });
 
-  // Navbar ayarları
-  const navbarBg = "#E53E3E"; // Navbar arka plan rengi
-  const iconColor = "#ee3124"; // İkon renkleri
-  const buttonBorderColor = "#ee3124"; // Butonların kenar rengi
-  const buttonTextColor = "#ee3124"; // Buton metin rengi
-  const isMobile = useBreakpointValue({ base: true, md: false });
-
-  // Profil için baş harfler
   const getInitials = (firstName, lastName) => {
-    const first = firstName || "A"; 
-    const last = lastName || "A"; 
-    
-    const initials = first.charAt(0).toUpperCase() + last.charAt(0).toUpperCase();
-    return initials;
-  };
-  
-  const initials = getInitials(name, surname);
-
-  // Sayfa navigasyonu
-  const handleLogoClick = () => {
-    navigate("/home");
+    return `${(firstName || "A")[0].toUpperCase()}${(lastName || "A")[0].toUpperCase()}`;
   };
 
-  const handleProfileManagement = () => {
-    navigate("/profile-edit");
-  };
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getByProfile();
+        if (response.success) {
+          setProfileData({
+            name: response.data.name,
+            surname: response.data.surname,
+            income: response.data.income,
+            education: response.data.educationLevel,
+            jobType: response.data.jobType,
+            profession: response.data.profession,
+            addressList: response.data.addressDTO || [],
+            phoneNumbers: response.data.telephone || "",
+            emails: response.data.email || "",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      }
+    };
 
-  const handleAddressManagement = () => {
-    navigate("/address-management");
-  };
+    fetchProfile();
+  }, []);
 
-  const handlePhoneManagement = () => {
-    navigate("/phone-management");
-  };
-
-  const handleEmailManagement = () => {
-    navigate("/email-management");
-  };
+  const handleNavigation = (path) => navigate(path);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Box bg={navbarBg} boxShadow="md" w="100%" p={4} position="sticky" top={0} zIndex="100">
-        <Flex align="center" justify="space-between" maxW="container.xl" mx="auto">
-          {/* Banka ismi */}
-          {!isMobile && (
-            <Flex align="center" ml={4}>
-              <Box onClick={handleLogoClick} cursor="pointer">
-                <Text
-                  fontSize="3xl"
-                  fontWeight="extrabold"
-                  color="white"
-                  fontFamily="'Poppins', sans-serif"
-                  letterSpacing="0.1em"
-                  textTransform="uppercase"
-                  lineHeight="1.1"
-                >
-                  Aureus Bank
-                </Text>
-              </Box>
-            </Flex>
-          )}
-          <Spacer />
-          <Flex align="center">
-            <Menu>
-              <MenuButton
-                as={Avatar}
-                size="md"
-                name={`${name} ${surname}`}
-                src=""
-                colorScheme="teal"
-                backgroundColor="teal.500"
-                _hover={{
-                  cursor: "pointer",
-                  transform: "scale(1.1)",
-                  transition: "transform 0.3s ease",
-                }}
-              >
-                {initials}
-              </MenuButton>
-              <MenuList
-                bg="white"
-                boxShadow="lg"
-                borderRadius="md"
-                width="280px"
-                minWidth="280px"
-                border="1px solid #ddd"
-                py={3}
-              >
-                <MenuItem icon={<AiOutlineIdcard size="22px" color={iconColor} />}>Profilim</MenuItem>
-                <MenuItem icon={<AiOutlineLogout size="22px" color={iconColor} />}>Çıkış Yap</MenuItem>
-              </MenuList>
-            </Menu>
-            {!isMobile && (
-              <Text ml={2} fontSize="sm" color="white" fontWeight="bold">
-                {`${name} ${surname}`}
-              </Text>
-            )}
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+      <Navbar />
+
+      <Box as="section" p={8} maxW="container.lg" mx="auto">
+        {/* Profil Header */}
+        <Box bg="white" boxShadow="2xl" borderRadius="2xl" p={8} mb={10}>
+          <Flex align="center" direction="column">
+            <Avatar
+              name={getInitials(profileData.name, profileData.surname)}
+              size="2xl"
+              bg="red.500"
+              color="white"
+              mb={4}
+            />
+            <Text fontSize="4xl" fontWeight="bold" color="gray.800" mb={2}>
+              {profileData.name} {profileData.surname}
+            </Text>
+            <Text fontSize="lg" fontWeight="semibold" color="gray.500" mb={6}>
+              {profileData.profession || "Henüz bir meslek belirtilmedi"}
+            </Text>
+            <Button
+              onClick={() => handleNavigation("/profile-edit")}
+              colorScheme="red"
+              size="lg"
+              fontWeight="bold"
+            >
+              Profili Düzenle
+            </Button>
           </Flex>
-        </Flex>
-      </Box>
-
-      {/* Kişisel Bilgiler */}
-      <Box p={6} maxW="container.xl" mx="auto">
-        <Text fontSize="3xl" fontWeight="bold" mb={6}>
-          Kişisel Bilgilerim
-        </Text>
-
-        <Box mb={4}>
-          <Text fontSize="lg" fontWeight="semibold" display="inline-block" mr={2}>
-            Aylık Gelir:
-          </Text>
-          <Text fontSize="lg" display="inline-block">{income}</Text>
         </Box>
-        <Box mb={4}>
-          <Text fontSize="lg" fontWeight="semibold" display="inline-block" mr={2}>
-            Eğitim Durumu:
-          </Text>
-          <Text fontSize="lg" display="inline-block">{education}</Text>
-        </Box>
-        <Box mb={4}>
-          <Text fontSize="lg" fontWeight="semibold" display="inline-block" mr={2}>
-            İş Türü:
-          </Text>
-          <Text fontSize="lg" display="inline-block">{jobType}</Text>
-        </Box>
-        <Box mb={4}>
-          <Text fontSize="lg" fontWeight="semibold" display="inline-block" mr={2}>
-            Meslek:
-          </Text>
-          <Text fontSize="lg" display="inline-block">{profession}</Text>
-        </Box>
-        
-        <Button
-          onClick={handleProfileManagement}
-          colorScheme="white"
-          border={`2px solid ${buttonBorderColor}`}
-          color={buttonTextColor}
-          size="md"
-          mt={4}
-          _hover={{
-            backgroundColor: buttonBorderColor,
-            color: "white",
-          }}
-        >
-          Kişisel Bilgilerimi Yönet
-        </Button>
-      </Box>
 
-      {/* Adreslerim */}
-      <Box p={6} maxW="container.xl" mx="auto" borderTop="1px solid #ddd">
-        <Text fontSize="3xl" fontWeight="bold" mb={6}>
-          Adreslerim
-        </Text>
-
-        {addressList && addressList.length > 0 ? (
-          <Box mb={4}>
-            {addressList.map((address, index) => (
-              <Box key={index} mb={2}>
-                <Flex align="center">
-                  <AiOutlineHome size="22px" color={iconColor} />
-                  <Text ml={2}>{address}</Text>
-                </Flex>
-              </Box>
+        {/* Kullanıcı Bilgileri */}
+        <Box bg="white" boxShadow="lg" borderRadius="2xl" p={8} mb={10}>
+          <Text fontSize="2xl" fontWeight="bold" color="gray.800" mb={6}>
+            <Icon as={AiOutlineUser} boxSize={6} color="red.500" mr={3} />
+            Kullanıcı Bilgileri
+          </Text>
+          <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={6}>
+            {[
+              { label: "Aylık Gelir", value: `${profileData.income} ₺`, icon: AiOutlineDollarCircle },
+              { label: "Eğitim Durumu", value: profileData.education, icon: AiOutlineBook },
+              { label: "İş Türü", value: profileData.jobType, icon: AiOutlineTool },
+              { label: "Meslek", value: profileData.profession, icon: AiOutlineUser },
+            ].map((item, index) => (
+              <Flex
+                key={index}
+                p={6}
+                bg="gray.50"
+                borderRadius="xl"
+                align="center"
+                boxShadow="md"
+                _hover={{ boxShadow: "lg" }}
+              >
+                <Icon as={item.icon} boxSize={8} color="red.500" mr={4} />
+                <Box>
+                  <Text fontSize="sm" color="gray.500" mb={1}>
+                    {item.label}
+                  </Text>
+                  <Text fontSize="lg" fontWeight="bold" color="gray.800">
+                    {item.value || "Bilgi bulunmuyor"}
+                  </Text>
+                </Box>
+              </Flex>
             ))}
-          </Box>
-        ) : (
-          <Text>Henüz adresiniz yok.</Text>
-        )}
+          </Grid>
+        </Box>
 
-        <Button
-          onClick={handleAddressManagement}
-          colorScheme="white"
-          border={`2px solid ${buttonBorderColor}`}
-          color={buttonTextColor}
-          size="md"
-          mt={4}
-          _hover={{
-            backgroundColor: buttonBorderColor,
-            color: "white",
-          }}
-        >
-          Adreslerimi Yönet
-        </Button>
-      </Box>
-
-      {/* Telefon Numaram */}
-      <Box p={6} maxW="container.xl" mx="auto" borderTop="1px solid #ddd">
-        <Text fontSize="3xl" fontWeight="bold" mb={6}>
-          Telefon Numaram
-        </Text>
-
-        {phoneNumbers && phoneNumbers.length > 0 ? (
-          <Box mb={4}>
-            {phoneNumbers.map((phone, index) => (
-              <Box key={index} mb={2}>
-                <Flex align="center">
-                  <AiOutlinePhone size="22px" color={iconColor} />
-                  <Text ml={2}>{phone}</Text>
+        {/* Adreslerim */}
+        <Box bg="white" boxShadow="lg" borderRadius="2xl" p={8} mb={10}>
+          <Text fontSize="2xl" fontWeight="bold" color="gray.800" mb={6}>
+            <Icon as={AiOutlineHome} boxSize={6} color="red.500" mr={3} />
+            Adreslerim
+          </Text>
+          {profileData.addressList.length > 0 ? (
+            <Stack spacing={6}>
+              {profileData.addressList.map((address, index) => (
+                <Flex
+                  key={index}
+                  p={6}
+                  bg="gray.50"
+                  borderRadius="xl"
+                  align="center"
+                  boxShadow="md"
+                  _hover={{ boxShadow: "lg" }}
+                >
+                  <Icon as={AiOutlineHome} boxSize={6} color="red.500" mr={4} />
+                  <Text color="gray.700" fontSize="md">
+                    {`${address.streetNumber}, ${address.addressTitle}, ${address.city}, ${address.country}`}
+                  </Text>
                 </Flex>
-              </Box>
-            ))}
-          </Box>
-        ) : (
-          <Text>Henüz telefon numaranız yok.</Text>
-        )}
+              ))}
+            </Stack>
+          ) : (
+            <Text color="gray.500">Henüz adresiniz yok.</Text>
+          )}
+          <Button
+            onClick={() => handleNavigation("/address-management")}
+            colorScheme="red"
+            mt={6}
+          >
+            Adreslerimi Yönet
+          </Button>
+        </Box>
 
-        <Button
-          onClick={handlePhoneManagement}
-          colorScheme="white"
-          border={`2px solid ${buttonBorderColor}`}
-          color={buttonTextColor}
-          size="md"
-          mt={4}
-          _hover={{
-            backgroundColor: buttonBorderColor,
-            color: "white",
-          }}
-        >
-          Telefon Numaramı Yönet
-        </Button>
-      </Box>
-
-      {/* E-posta */}
-      <Box p={6} maxW="container.xl" mx="auto" borderTop="1px solid #ddd">
-        <Text fontSize="3xl" fontWeight="bold" mb={6}>
-          E-posta
-        </Text>
-
-        {emails && emails.length > 0 ? (
-          <Box mb={4}>
-            {emails.map((email, index) => (
-              <Box key={index} mb={2}>
-                <Flex align="center">
-                  <AiOutlineMail size="22px" color={iconColor} />
-                  <Text ml={2}>{email}</Text>
-                </Flex>
-              </Box>
-            ))}
-          </Box>
-        ) : (
-          <Text>Henüz e-posta adresiniz yok.</Text>
-        )}
-
-        <Button
-          onClick={handleEmailManagement}
-          colorScheme="white"
-          border={`2px solid ${buttonBorderColor}`}
-          color={buttonTextColor}
-          size="md"
-          mt={4}
-          _hover={{
-            backgroundColor: buttonBorderColor,
-            color: "white",
-          }}
-        >
-          E-posta Adresimi Yönet
-        </Button>
+        {/* İletişim Bilgileri */}
+        <Box bg="white" boxShadow="lg" borderRadius="2xl" p={8}>
+          <Text fontSize="2xl" fontWeight="bold" color="gray.800" mb={6}>
+            <Icon as={AiOutlineMail} boxSize={6} color="red.500" mr={3} />
+            İletişim Bilgilerim
+          </Text>
+          <Stack spacing={6}>
+            <Flex align="center" p={6} bg="gray.50" borderRadius="xl" boxShadow="md">
+              <Icon as={AiOutlinePhone} boxSize={6} color="red.500" mr={4} />
+              <Text fontSize="md" color="gray.700">
+                {profileData.phoneNumbers || "Henüz telefon numaranız yok."}
+              </Text>
+            </Flex>
+            <Flex align="center" p={6} bg="gray.50" borderRadius="xl" boxShadow="md">
+              <Icon as={AiOutlineMail} boxSize={6} color="red.500" mr={4} />
+              <Text fontSize="md" color="gray.700">
+                {profileData.emails || "Henüz e-posta adresiniz yok."}
+              </Text>
+            </Flex>
+          </Stack>
+          <Button
+            onClick={() => handleNavigation("/contact-management")}
+            colorScheme="red"
+            mt={6}
+          >
+            İletişim Bilgilerimi Yönet
+          </Button>
+        </Box>
       </Box>
     </motion.div>
   );

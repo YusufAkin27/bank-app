@@ -32,20 +32,28 @@ const Navbar = () => {
   // Fetch profile data when the component is loaded
   useEffect(() => {
     const fetchProfile = async () => {
-      const result = await getByProfile();
-
-      // Check if profile data is available and valid
-      if (result.success && result.data && result.data.data) {
-        setName(result.data.data.name);
-        setSurname(result.data.data.surname);
-      } else {
-        console.error(result.message || "Profile data could not be fetched.");
-        navigate("/"); // Redirect to login if profile data is not available
+      try {
+        const result = await getByProfile();
+  
+        // Check if profile data is available and valid
+        if (!result.data.name || !result.data.surname) { // Eğer name veya surname boşsa
+          console.error(result.message || "Incomplete profile data.");
+          navigate("/"); // Giriş sayfasına yönlendirme
+          return;
+        }
+  
+        // Eğer name ve surname varsa state'i güncelle
+        setName(result.data.name);
+        setSurname(result.data.surname);
+      } catch (error) {
+        console.error("An error occurred while fetching the profile:", error);
+        navigate("/"); // Hata durumunda yönlendirme
       }
     };
-
+  
     fetchProfile();
   }, [navigate]);
+  
 
   // Function to calculate initials
   const getInitials = (firstName, lastName) => {
