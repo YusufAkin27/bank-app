@@ -1,48 +1,45 @@
-import React, { useState, useEffect } from "react";
-import { Box, Button, Input, HStack, Text, useToast, Spinner } from "@chakra-ui/react";
+import React, { useState, useEffect, useRef } from "react";
+import { Box, Button, Input, HStack, Text, Spinner, VStack, Link } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { verifyLoginCode } from "../services/AuthService";
-import MessageAlert from "../components/MessageAlert";
 
 const VerifyLoginCode = () => {
   const [loading, setLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertStatus, setAlertStatus] = useState(null); // null, "success", or "error"
   const [code, setCode] = useState(["", "", "", "", "", ""]);
-  const [focusedIndex, setFocusedIndex] = useState(0);
-
+  const inputRefs = useRef([]);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    inputRefs.current[0]?.focus();
+  }, []);
+
   const handleCodeChange = (e, index) => {
-    const value = e.target.value.replace(/\D/g, ""); // Allow only digits
+    const value = e.target.value.replace(/\D/g, ""); // Sadece rakamları kabul et
     if (!value) return;
 
     const newCode = [...code];
     newCode[index] = value;
-
     setCode(newCode);
-    if (index < 5) {
-      setFocusedIndex(index + 1);
-      document.getElementById(`code-input-${index + 1}`).focus();
+
+    // Bir sonraki kutuya geçiş yap
+    if (index < code.length - 1 && value) {
+      inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace") {
       const newCode = [...code];
-      if (newCode[index]) {
-        newCode[index] = ""; // Clear current input
+      if (code[index]) {
+        newCode[index] = "";
         setCode(newCode);
       } else if (index > 0) {
-        document.getElementById(`code-input-${index - 1}`).focus();
-        setFocusedIndex(index - 1);
+        newCode[index - 1] = "";
+        setCode(newCode);
+        inputRefs.current[index - 1]?.focus();
       }
-    } else if (e.key === "ArrowRight" && index < 5) {
-      document.getElementById(`code-input-${index + 1}`).focus();
-      setFocusedIndex(index + 1);
-    } else if (e.key === "ArrowLeft" && index > 0) {
-      document.getElementById(`code-input-${index - 1}`).focus();
-      setFocusedIndex(index - 1);
     }
   };
 
@@ -73,74 +70,99 @@ const VerifyLoginCode = () => {
       });
 };
 
+
   return (
     <Box
-      maxW={{ base: "full", md: "lg" }}
-      w="full"
-      p={8}
-      boxShadow="xl"
-      borderRadius="lg"
+      minH="100vh"
       display="flex"
-      justifyContent="center"
       alignItems="center"
-      minHeight="100vh"
-      bg="gray.50"
+      justifyContent="center"
+      bgGradient="linear(to-br, #f7f8fc, #ebeff5)"
+      px={4}
     >
-      {alertStatus && (
-        <MessageAlert
-          isSuccess={alertStatus === "success"}
-          message={alertMessage}
-          onClose={() => setAlertStatus(null)}
-        />
-      )}
+      <Box
+        maxW="lg"
+        w="full"
+        p={8}
+        bg="white"
+        boxShadow="xl"
+        borderRadius="xl"
+        textAlign="center"
+      >
+        {loading ? (
+          <Spinner size="xl" color="#ee3124" />
+        ) : (
+          <>
+            <Text fontSize="3xl" fontWeight="bold" mb={6} color="gray.800">
+              Telefon Numarası Doğrulama
+            </Text>
 
-      {loading ? (
-        <Spinner size="xl" color="#ee3124" />
-      ) : (
-        <Box textAlign="center" w="full" maxW="400px">
-          <Text fontSize={{ base: "xl", md: "2xl" }} fontWeight="bold" mb={4} color="gray.700">
-            Telefon Numarası Doğrulama
-          </Text>
+            {alertMessage && (
+              <Text
+                color={alertStatus === "success" ? "green.600" : "red.600"}
+                fontWeight="semibold"
+                mb={4}
+              >
+                {alertMessage}
+              </Text>
+            )}
 
-          <HStack justify="center" spacing={4} mb={6}>
-            {code.map((digit, index) => (
-              <Input
-                key={index}
-                id={`code-input-${index}`}
-                type="text"
-                maxLength="1"
-                value={digit}
-                onChange={(e) => handleCodeChange(e, index)}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                textAlign="center"
-                fontSize="3xl"
+            <HStack justify="center" spacing={4} mb={6}>
+              {code.map((digit, index) => (
+                <Input
+                  key={index}
+                  type="text"
+                  maxLength="1"
+                  value={digit}
+                  onChange={(e) => handleCodeChange(e, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  textAlign="center"
+                  fontSize="2xl"
+                  size="lg"
+                  width="60px"
+                  height="60px"
+                  borderColor="gray.300"
+                  focusBorderColor="#ee3124"
+                  bg="white"
+                  color="gray.800"
+                  _hover={{ borderColor: "#ee3124", bg: "#ffecec" }}
+                  _focus={{
+                    borderColor: "#ee3124",
+                    boxShadow: "0 0 0 2px rgba(238, 49, 36, 0.4)",
+                  }}
+                />
+              ))}
+            </HStack>
+
+            <VStack spacing={4}>
+              <Button
+                bg="#ee3124"
+                color="white"
+                onClick={handleSubmit}
                 size="lg"
-                width={{ base: "50px", md: "60px" }}
-                height="60px"
-                borderColor={focusedIndex === index ? "#ee3124" : "gray.300"}
-                focusBorderColor="#ee3124"
-                bg="white"
-                color="gray.800"
-                onFocus={() => setFocusedIndex(index)}
-                transition="all 0.3s ease"
-                _hover={{ borderColor: "#ee3124", bg: "#ffe8e8" }}
-              />
-            ))}
-          </HStack>
+                w="full"
+                _hover={{ bg: "#cc2a1f" }}
+                _active={{ bg: "#b1221b" }}
+              >
+                Doğrula
+              </Button>
 
-          <Button
-            bg="#ee3124"
-            color="white"
-            _hover={{ bg: "#c82a1e" }}
-            size="lg"
-            w="full"
-            mt={4}
-            onClick={handleSubmit}
-          >
-            Doğrula
-          </Button>
-        </Box>
-      )}
+              <Text fontSize="sm" color="gray.600">
+                Kodunuzu almadınız mı?{" "}
+                <Link
+                  color="#ee3124"
+                  fontWeight="semibold"
+                  cursor="pointer"
+                  _hover={{ textDecoration: "underline" }}
+                >
+                  Tekrar Gönder
+                </Link>
+              </Text>
+            </VStack>
+          </>
+        )}
+      </Box>
     </Box>
   );
 };

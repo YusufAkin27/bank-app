@@ -19,10 +19,12 @@ import {
     Button,
 } from "@chakra-ui/react";
 import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
 
 const AccountDetail = ({ account }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
     const [copySuccess, setCopySuccess] = useState("");
+    const navigate = useNavigate();
 
     const formatAmount = (amount) =>
         amount !== null && amount !== undefined ? amount.toFixed(2) : "0.00";
@@ -87,7 +89,7 @@ const AccountDetail = ({ account }) => {
                         Toplam Hesap Bakiyesi:
                     </Text>
                     <Text fontSize="md" fontWeight="bold" color="blue.600">
-                        {`${formatAmount(account.balance) } `}
+                        {`${formatAmount(account.balance)} `}
                     </Text>
                 </HStack>
                 <HStack justify="space-between">
@@ -107,13 +109,25 @@ const AccountDetail = ({ account }) => {
                 <Badge colorScheme="blue" px={4} py={1} borderRadius="full" fontSize="md">
                     {account.accountType}
                 </Badge>
+            </HStack>
+
+            {/* Yeni Butonlar */}
+            <HStack spacing={4} mt={6} justify="center">
                 <Button
-                    size="sm"
+                    size="md"
                     colorScheme="teal"
+                    fontWeight="semibold"
+                    onClick={() => navigate("/transfer")}
+                >
+                    Para Transferi
+                </Button>
+                <Button
+                    size="md"
+                    colorScheme="blue"
                     fontWeight="semibold"
                     onClick={onOpen}
                 >
-                    Hesap Aktiviteleri
+                    Hesap Hareketleri
                 </Button>
             </HStack>
 
@@ -127,7 +141,6 @@ const AccountDetail = ({ account }) => {
                         <VStack align="stretch" spacing={4}>
                             {account.accountActivities.length > 0 ? (
                                 account.accountActivities.map((activity, index) => {
-                                    // Null olmayan alanları filtrele
                                     const displayFields = {
                                         İşlemTarihi: activity.processDate
                                             ? new Date(activity.processDate).toLocaleString("tr-TR")
@@ -150,7 +163,7 @@ const AccountDetail = ({ account }) => {
                                             <VStack align="stretch" spacing={2}>
                                                 {Object.entries(displayFields).map(
                                                     ([field, value]) =>
-                                                        value && ( // Null olmayan alanları göster
+                                                        value && (
                                                             <HStack
                                                                 key={field}
                                                                 justify="space-between"

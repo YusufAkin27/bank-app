@@ -16,7 +16,7 @@ import {
 } from "@chakra-ui/react";
 import CurrencySelector from "../components/CurrencySelector";
 import BranchSelector from "../components/BranchSelector";
-import { create } from "../services/CheckingAccountService";
+import { createCheckingAccount } from "../services/CheckingAccountService";
 
 const TermsPage = () => {
     const [isChecked, setIsChecked] = useState(false);
@@ -62,7 +62,7 @@ const TermsPage = () => {
 
         try {
             // create fonksiyonuna branchName ve currency parametrelerini gönder
-            const response = await create(branchName, currency);
+            const response = await createCheckingAccount(branchName, currency);
 
             if (response.success) {
                 toast({

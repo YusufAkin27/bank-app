@@ -144,35 +144,6 @@ export const verifyLoginCode = async (smsCode) => {
         return { success: false, message: errorMessage };
     }
 };
-const getByProfile = async () => {
-    try {
-        const token = Cookies.get("authToken");
-        if (!token) {
-            return { success: false, message: "Token bulunamadı" };
-        }
-
-        const response = await axios.get(`${API_URL}/customers/getProfile`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-
-        // Check if the response contains the necessary data
-        if (response.data.success) {
-            console.log("Profile Data:", response.data); // Log the response data for debugging
-            return { success: true, data: response.data.data }; // Adjust this as per the response structure
-        } else {
-            return { success: false, message: response.data.message || "Profil bilgileri alınamadı." };
-        }
-    } catch (error) {
-        console.error("Error:", error); // Log the full error for debugging
-        return {
-            success: false,
-            message: error.response?.data?.message || "Profil bilgileri alınamadı.",
-        };
-    }
-};
-
-
-
 
 
     // Çıkış işlemi
@@ -204,4 +175,4 @@ const getByProfile = async () => {
         }
     };
 
-    export { register, login, logout, activateAccount, getByProfile };
+    export { register, login, logout, activateAccount };

@@ -13,7 +13,7 @@ import {
 import { AiOutlineHome, AiOutlineFlag, AiOutlineAppstoreAdd } from "react-icons/ai";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { create } from '../services/AddressService';
+import { createAddress } from '../services/AddressService';
 import MessageAlert from "../components/MessageAlert"; // Hata ve başarı mesajı bileşeni
 import Cookies from 'js-cookie';
 const MotionBox = motion(Box);
@@ -56,7 +56,7 @@ const CreateAddress = () => {
         };
     
         try {
-            const response = await create(addressData);
+            const response = await createAddress(addressData);
     
             if (response.success) {
                 setAlertMessage(response.message);

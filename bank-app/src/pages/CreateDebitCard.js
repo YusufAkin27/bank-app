@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import MessageAlert from "../components/MessageAlert";
 import {  create } from "../services/DebitCardService";
-import { getAllAccounts } from "../services/CheckingAccountService";
+import { getAllCheckingAccounts } from "../services/CheckingAccountService";
 import Account from "../components/Accounts";
 
 const CreateDebitCard = () => {
@@ -19,7 +19,7 @@ const CreateDebitCard = () => {
     useEffect(() => {
         const fetchAccounts = async () => {
             try {
-                const response = await getAllAccounts();
+                const response = await getAllCheckingAccounts();
                 if (response.success) {
                     setAccounts(response.data);
                 } else {

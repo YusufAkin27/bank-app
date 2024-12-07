@@ -1,26 +1,85 @@
-import React, { useState } from "react";
-import { Box, Flex, Text, Button, Input, Select, useBreakpointValue, Spacer } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-import { AiOutlineHome, AiOutlineLogout } from "react-icons/ai";
-import { Menu, MenuButton, MenuList, MenuItem, Avatar } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  Input,
+  Select,
+  Stack,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
 import { motion } from "framer-motion";
-import Navbar from "../components/Navbar";
+import Navbar from "../components/Navbar"; // Navbar bileşeni
+import { editProfile, getProfile } from "../services/CustomerService"; // Servis çağrıları
+import { useNavigate } from "react-router-dom";
 
 const ProfileEdit = () => {
-    const [income, setIncome] = useState("");
-    const [education, setEducation] = useState("");
-    const [jobType, setJobType] = useState("");
-    const [profession, setProfession] = useState("");
+  const [profileData, setProfileData] = useState({
+    income: "",
+    educationLevel: "",
+    jobType: "",
+    profession: "",
+  });
 
-    const navigate = useNavigate();
-    const isMobile = useBreakpointValue({ base: true, md: false });
+  const toast = useToast();
+  const navigate = useNavigate();
 
-    const handleSave = () => {
-        // Profil bilgilerini kaydetme işlemi yapılacak
-        console.log("Profil bilgileri kaydedildi:", { income, education, jobType, profession });
-        // Kaydetme işleminden sonra ana sayfaya yönlendirme
-        navigate("/profile");
+  // Profil verilerini alma
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const response = await getProfile();
+      if (response.success) {
+        setProfileData({
+          income: response.data.income || "",
+          educationLevel: response.data.educationLevel || "",
+          jobType: response.data.jobType || "",
+          profession: response.data.profession || "",
+        });
+      } else {
+        toast({
+          title: "Profil Bilgileri Alınamadı",
+          description: response.message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     };
+
+    fetchProfile();
+  }, [toast]);
+
+  // Form gönderme işlemi
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const response = await editProfile(profileData);
+    if (response.success) {
+      toast({
+        title: "Profil Güncellendi",
+        description: "Profil bilgileri başarıyla güncellendi.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      navigate("/profile"); // Başarıyla güncellendiğinde profile sayfasına yönlendirme
+    } else {
+      toast({
+        title: "Güncelleme Başarısız",
+        description: response.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+  // Form değişikliklerini izleme
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData({ ...profileData, [name]: value });
+  };
 
     // Navbar ayarları
     const navbarBg = "#E53E3E"; // Navbar arka plan rengi
@@ -51,117 +110,98 @@ const ProfileEdit = () => {
 
     return (
         <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Navbar /> {/* Navbar'ı dahil ettik */}
+          <Box
+            as="form"
+            onSubmit={handleSubmit}
+            p={6}
+            maxW="600px"
+            mx="auto"
+            bg="white"
+            boxShadow="lg"
+            borderRadius="md"
+          >
+            <Text fontSize="2xl" fontWeight="bold" mb={6} textAlign="center">
+              Kişisel Bilgiler
+            </Text>
+            <Stack spacing={4}>
+              <FormControl>
+                <FormLabel>Aylık Gelir</FormLabel>
+                <Input
+                  type="number"
+                  name="income"
+                  value={profileData.income}
+                  onChange={handleChange}
+                  placeholder="Aylık gelir bilgisi"
+                />
+              </FormControl>
+    
+              <FormControl>
+                <FormLabel>Eğitim Durumu</FormLabel>
+                <Select
+                  name="educationLevel"
+                  value={profileData.educationLevel}
+                  onChange={handleChange}
                 >
-                    <Navbar></Navbar>
-            
-           
-
-            {/* Profil Düzenleme Formu */}
-            <Box p={6} maxW="600px" mx="auto" bg="white" boxShadow="lg" borderRadius="md">
-                <Text fontSize="3xl" fontWeight="bold" mb={6} textAlign="center">
-                    Kişisel Bilgiler
-                </Text>
-
-                <Box mb={4}>
-                    <Text fontSize="lg" fontWeight="semibold" mb={2}>
-                        Aylık Gelir:
-                    </Text>
-                    <Input
-                        value={income}
-                        onChange={(e) => setIncome(e.target.value)}
-                        placeholder="Aylık gelir bilgisi"
-                        size="md"
-                        mb={4}
-                        width="100%"
-                        maxWidth="500px"
-                    />
-                </Box>
-
-                <Box mb={4}>
-                    <Text fontSize="lg" fontWeight="semibold" mb={2}>
-                        Eğitim Durumu:
-                    </Text>
-                    <Select
-                        value={education}
-                        onChange={(e) => setEducation(e.target.value)}
-                        placeholder="Eğitim durumunu seçin"
-                        size="md"
-                        mb={4}
-                        width="100%"
-                        maxWidth="500px"
-                    >
-                        {educationOptions.map((option, index) => (
-                            <option key={index} value={option}>{option}</option>
-                        ))}
-                    </Select>
-                </Box>
-
-                <Box mb={4}>
-                    <Text fontSize="lg" fontWeight="semibold" mb={2}>
-                        İş Türü:
-                    </Text>
-                    <Select
-                        value={jobType}
-                        onChange={(e) => setJobType(e.target.value)}
-                        placeholder="İş türünü seçin"
-                        size="md"
-                        mb={4}
-                        width="100%"
-                        maxWidth="500px"
-                    >
-                        {jobTypeOptions.map((option, index) => (
-                            <option key={index} value={option}>{option}</option>
-                        ))}
-                    </Select>
-                </Box>
-                <Box mb={4}>
-                    <Text fontSize="lg" fontWeight="semibold" mb={2}>
-                        Meslek:
-                    </Text>
-                    <Select
-                        value={profession}
-                        onChange={(e) => setProfession(e.target.value)}
-                        placeholder="Meslek bilgisini seçin"
-                        size="md"
-                        mb={4}
-                        width="100%"
-                        maxWidth="500px"
-                        minWidth="300px"
-                        _menu={{
-                            maxHeight: '300px',  // Menü boyutunu sınırlıyoruz
-                            overflowY: 'auto',   // Taşma durumunda kaydırma ekliyoruz
-                        }}
-                    >
-                        {professionOptions.map((option, index) => (
-                            <option key={index} value={option}>{option}</option>
-                        ))}
-                    </Select>
-                </Box>
-
-
-
-                <Button
-                    onClick={handleSave}
-                    colorScheme="white"
-                    border={`2px solid #ee3124`}
-                    color="#ee3124"
-                    size="md"
-                    width="100%"
-                    maxWidth="500px"
-                    mt={6}
-                    _hover={{
-                        backgroundColor: "#ee3124",
-                        color: "white",
-                    }}
+                  <option value="">{profileData.educationLevel}</option>
+                  {educationOptions.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+    
+              <FormControl>
+                <FormLabel>İş Türü</FormLabel>
+                <Select
+                  name="jobType"
+                  value={profileData.jobType}
+                  onChange={handleChange}
                 >
-                    Kaydet
-                </Button>
-            </Box>
+                  <option value="">{profileData.jobType}</option>
+                  {jobTypeOptions.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+    
+              <FormControl>
+                <FormLabel>Meslek</FormLabel>
+                <Select
+                  name="profession"
+                  value={profileData.profession}
+                  onChange={handleChange}
+                >
+                  <option value="">{profileData.profession}</option>
+                  {professionOptions.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </Select>
+              </FormControl>
+    
+              <Button
+                type="submit"
+                colorScheme="red"
+                size="lg"
+                width="100%"
+                mt={6}
+                _hover={{ backgroundColor: "#ee3124", color: "white" }}
+              >
+                Kaydet
+              </Button>
+            </Stack>
+          </Box>
         </motion.div>
-    );
-};
-
-export default ProfileEdit;
+      );
+    };
+    
+    export default ProfileEdit;

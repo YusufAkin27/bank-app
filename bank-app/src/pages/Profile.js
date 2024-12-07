@@ -22,7 +22,7 @@ import {
 } from "react-icons/ai";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
-import { getByProfile } from "../services/AuthService";
+import { sendUserInfo ,getProfile} from "../services/CustomerService";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await getByProfile();
+        const response = await getProfile();
         if (response.success) {
           setProfileData({
             name: response.data.name,
@@ -68,7 +68,19 @@ const Profile = () => {
   }, []);
 
   const handleNavigation = (path) => navigate(path);
-
+  const handleSendInformation = async () => {
+    try {
+      const response = await sendUserInfo(profileData);
+      if (response.success) {
+        alert("Veriler başarıyla gönderildi.");
+      } else {
+        alert("Veri gönderimi sırasında bir hata oluştu.");
+      }
+    } catch (error) {
+      console.error("Error sending information:", error);
+      alert("Bir hata oluştu. Lütfen tekrar deneyin.");
+    }
+  };
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
       <Navbar />
@@ -200,6 +212,17 @@ const Profile = () => {
             mt={6}
           >
             İletişim Bilgilerimi Yönet
+          </Button>
+
+          <Button
+            onClick={handleSendInformation}
+            colorScheme="green"
+            size="lg"
+            borderRadius="full"
+            px={12}
+            boxShadow="lg"
+          >
+            Verilerimi Gönder
           </Button>
         </Box>
       </Box>

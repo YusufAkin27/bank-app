@@ -14,7 +14,9 @@ import ProfileEdit from './pages/ProfileEdit';
 import TermsPage from './pages/TermsPage';
 import CreateAddress from './pages/CreateAddress ';
 import CreateDebitCard from './pages/CreateDebitCard';
-
+import ContactManagement from './pages/ContactManagement';
+import AddressManagement from './pages/AddressManagement';
+import SettingsPage from './pages/Setting';
 const App = () => {
   return (
     <ChakraProvider> {/* Chakra UI stili sağlayan ChakraProvider */}
@@ -27,9 +29,14 @@ const App = () => {
           <Route path="/home" element={<HomePage />} /> {/* LoginForm sayfasına yönlendirme */}
           <Route path="/verifyCode" element={<ActivatePage />} /> {/* LoginForm sayfasına yönlendirme */}
           <Route path="/verifyLoginCode" element={<VerifyLoginCode />} /> {/* LoginForm sayfasına yönlendirme */}
+          <Route path="/setting" element={<SettingsPage />} /> {/* LoginForm sayfasına yönlendirme */}
 
           <Route path="/profile" element={<Profile />} /> {/* LoginForm sayfasına yönlendirme */}
           <Route path="/profile-edit" element={<ProfileEdit />} /> {/* LoginForm sayfasına yönlendirme */}
+          <Route path="/contact-management" element={<ContactManagement />} /> {/* LoginForm sayfasına yönlendirme */}
+          <Route path="/address-management" element={<AddressManagement />} /> {/* LoginForm sayfasına yönlendirme */}
+
+
           <Route path="/termsPage" element={<TermsPage />} /> {/* LoginForm sayfasına yönlendirme */}
           <Route path="/createAddress" element={<CreateAddress />} /> {/* LoginForm sayfasına yönlendirme */}
           <Route path="/createDebitCard" element={<CreateDebitCard />} /> {/* LoginForm sayfasına yönlendirme */}

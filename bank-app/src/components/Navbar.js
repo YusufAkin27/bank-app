@@ -20,7 +20,7 @@ import {
   AiOutlineTool,
 } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-import { getByProfile } from "../services/AuthService"; // authService import
+import { getProfile } from "../services/CustomerService";
 
 const Navbar = () => {
   // State declarations
@@ -33,15 +33,15 @@ const Navbar = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const result = await getByProfile();
-  
+        const result = await getProfile();
+
         // Check if profile data is available and valid
         if (!result.data.name || !result.data.surname) { // Eğer name veya surname boşsa
           console.error(result.message || "Incomplete profile data.");
           navigate("/"); // Giriş sayfasına yönlendirme
           return;
         }
-  
+
         // Eğer name ve surname varsa state'i güncelle
         setName(result.data.name);
         setSurname(result.data.surname);
@@ -50,10 +50,11 @@ const Navbar = () => {
         navigate("/"); // Hata durumunda yönlendirme
       }
     };
-  
+
     fetchProfile();
   }, [navigate]);
-  
+
+  const handleSettingClick = () => navigate("/setting");
 
   // Function to calculate initials
   const getInitials = (firstName, lastName) => {
@@ -172,6 +173,8 @@ const Navbar = () => {
                   Mesajlar
                 </MenuItem>
                 <MenuItem
+                  onClick={handleSettingClick}
+
                   icon={<AiOutlineTool size="22px" />}
                   _hover={{
                     bg: "gray.100",

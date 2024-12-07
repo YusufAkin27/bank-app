@@ -6,66 +6,73 @@ const API_URL = 'http://localhost:8080/bank';
 // Debit card creation function
 const create = async (data) => {
     try {
-        // Retrieve the token from cookies
         const token = Cookies.get('authToken');
+        if (!token) throw new Error("Token bulunamadı. Lütfen giriş yapın.");
 
-        if (!token) {
-            throw new Error("Token bulunamadı. Lütfen giriş yapın.");
-        }
-
-        // Send the request with the data in the body
         const response = await axios.post(
             `${API_URL}/cards/debitCard/add`,
-            data,  // Directly send the data as the body
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`, // Send the token in headers
-                },
-            }
+            data,
+            { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        return response.data; // Return the response data
+        return response.data;
     } catch (error) {
-        // Return error message if something goes wrong
         return { success: false, message: error.message || 'Hesap açılırken bir sorun oldu' };
     }
 };
 
-// Get all accounts function
-
+// Get all debit cards function
 const getAllDebitCards = async () => {
     try {
-        // Retrieve the token from cookies
         const token = Cookies.get('authToken');
+        if (!token) throw new Error("Token bulunamadı. Lütfen giriş yapın.");
 
-        if (!token) {
-            throw new Error("Token bulunamadı. Lütfen giriş yapın.");
-        }
-
-        // Send the request to get all debit cards
         const response = await axios.get(
-            `${API_URL}/cards/debitCard/getAll`, // Updated endpoint for getting all debit cards
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`, // Send the token in headers
-                },
-            }
+            `${API_URL}/cards/debitCard/getAll`,
+            { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        // Return the response data, which should be a list of debit cards
-        if (response.data) {
-            return { success: true, data: response.data }; // Return success response with data
-        } else {
-            throw new Error('Kartlar alınırken bir sorun oldu');
-        }
-
+        return { success: true, data: response.data };
     } catch (error) {
-        // Handle error and return error message
         return { success: false, message: error.response?.data?.message || error.message || 'Kartlar alınırken bir sorun oldu' };
     }
 };
 
+// Delete debit card function
+const deleteDebitCard = async (debitCardId) => {
+    try {
+        const token = Cookies.get('authToken');
+        if (!token) throw new Error("Token bulunamadı. Lütfen giriş yapın.");
 
+        const response = await axios.delete(
+            `${API_URL}/cards/debitCard/delete/${debitCardId}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
 
+        return response.data;
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || error.message || 'Kart silinirken bir sorun oldu' };
+    }
+};
 
-export { create, getAllDebitCards};
+// Get all activities for a specific debit card
+const getAllActivities = async (debitCardId) => {
+    try {
+        const token = Cookies.get('authToken');
+        if (!token) throw new Error("Token bulunamadı. Lütfen giriş yapın.");
+
+        const response = await axios.get(
+            `${API_URL}/cards/debitCard/getAllActivity`,
+            {
+                params: { debitCardId },
+                headers: { Authorization: `Bearer ${token}` }
+            }
+        );
+
+        return { success: true, data: response.data };
+    } catch (error) {
+        return { success: false, message: error.response?.data?.message || error.message || 'Aktiviteler alınırken bir sorun oldu' };
+    }
+};
+
+export { create, getAllDebitCards, deleteDebitCard, getAllActivities };
